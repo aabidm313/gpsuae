@@ -1,0 +1,298 @@
+{
+	"info": {
+		"name": "Event Management API",
+		"description": "REST API for Event Management System built with Laravel 11 + Sanctum",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var res = pm.response.json();",
+									"if (res.token) {",
+									"    pm.collectionVariables.set('token', res.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/register",
+							"host": ["{{base_url}}"],
+							"path": ["register"]
+						},
+						"description": "Register a new user. Token is automatically saved to collection variable."
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var res = pm.response.json();",
+									"if (res.token) {",
+									"    pm.collectionVariables.set('token', res.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": ["{{base_url}}"],
+							"path": ["login"]
+						},
+						"description": "Login with existing credentials. Token is automatically saved to collection variable."
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/logout",
+							"host": ["{{base_url}}"],
+							"path": ["logout"]
+						},
+						"description": "Revoke current token. Requires Bearer token."
+					}
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/password/forgot",
+							"host": ["{{base_url}}"],
+							"path": ["password", "forgot"]
+						},
+						"description": "Send password reset link to the given email."
+					}
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"paste-token-from-email-here\",\n    \"email\": \"john@example.com\",\n    \"password\": \"newpassword123\",\n    \"password_confirmation\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/password/reset",
+							"host": ["{{base_url}}"],
+							"path": ["password", "reset"]
+						},
+						"description": "Reset password using the token received via email."
+					}
+				}
+			]
+		},
+		{
+			"name": "Events",
+			"item": [
+				{
+					"name": "List All Events",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/events",
+							"host": ["{{base_url}}"],
+							"path": ["events"]
+						},
+						"description": "Returns paginated list of all published events."
+					}
+				},
+				{
+					"name": "Create Event",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Laravel Conference 2025\",\n    \"description\": \"A conference for Laravel developers from all over the world.\",\n    \"location\": \"Karachi, Pakistan\",\n    \"start_datetime\": \"2025-09-01 09:00:00\",\n    \"end_datetime\": \"2025-09-01 17:00:00\",\n    \"max_participants\": 100,\n    \"status\": \"published\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/events",
+							"host": ["{{base_url}}"],
+							"path": ["events"]
+						},
+						"description": "Create a new event. The logged-in user becomes the organizer.\n\nstatus options: draft | published | cancelled\nmax_participants: optional (leave null for unlimited)"
+					}
+				},
+				{
+					"name": "Get Event",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/events/1",
+							"host": ["{{base_url}}"],
+							"path": ["events", "1"]
+						},
+						"description": "Get details of a single event by ID. Replace 1 with the actual event ID."
+					}
+				},
+				{
+					"name": "Update Event",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Laravel Conference 2025 — Updated\",\n    \"location\": \"Lahore, Pakistan\",\n    \"max_participants\": 150,\n    \"status\": \"published\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/events/1",
+							"host": ["{{base_url}}"],
+							"path": ["events", "1"]
+						},
+						"description": "Update an event. Only the organizer can update. Send only the fields you want to change."
+					}
+				},
+				{
+					"name": "Delete Event",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/events/1",
+							"host": ["{{base_url}}"],
+							"path": ["events", "1"]
+						},
+						"description": "Delete an event. Only the organizer can delete. Replace 1 with the actual event ID."
+					}
+				}
+			]
+		},
+		{
+			"name": "Participants",
+			"item": [
+				{
+					"name": "Register for Event",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/events/1/register",
+							"host": ["{{base_url}}"],
+							"path": ["events", "1", "register"]
+						},
+						"description": "Register the logged-in user as a participant for an event. No body required. Replace 1 with the event ID."
+					}
+				},
+				{
+					"name": "Cancel Registration",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/events/1/register",
+							"host": ["{{base_url}}"],
+							"path": ["events", "1", "register"]
+						},
+						"description": "Cancel your registration for an event. Replace 1 with the event ID."
+					}
+				},
+				{
+					"name": "List Participants",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/events/1/participants",
+							"host": ["{{base_url}}"],
+							"path": ["events", "1", "participants"]
+						},
+						"description": "Get the list of registered participants. Only the event organizer can access this. Replace 1 with the event ID."
+					}
+				}
+			]
+		}
+	]
+}
